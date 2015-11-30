@@ -1,12 +1,15 @@
 <template id="multiselectTemplate">
     <style>
         .multiselect-popup {
+            display: none;
             min-height: 400px;
             background: lightyellow;
         }
 
         .multiselect-field {
-
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .multiselect-tag {
@@ -42,6 +45,7 @@
             this._popup = this._root.querySelector('.multiselect-popup');
             this._list = this._root.querySelector('.multiselect-list');
 
+            this.attachFieldClickHandler();
             this.refreshField();
             this.refreshList();
         };
@@ -50,6 +54,19 @@
             var result = this.createShadowRoot();
             result.appendChild(document.importNode(template.content, true));
             return result;
+        };
+
+        multiselectPrototype.attachFieldClickHandler = function() {
+            this._field.addEventListener('click', this.fieldClickHandler.bind(this));
+        };
+
+        multiselectPrototype.fieldClickHandler = function() {
+            this.togglePopup();
+        };
+
+        multiselectPrototype.togglePopup = function() {
+            this._isOpened = !this._isOpened;
+            this._popup.style.display = this._isOpened ? 'block' : 'none';
         };
 
         multiselectPrototype.refreshField = function() {
