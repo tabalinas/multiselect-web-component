@@ -1,0 +1,72 @@
+<template id="multiselectTemplate">
+    <style>
+        .multiselect-popup {
+            min-height: 400px;
+            background: lightyellow;
+        }
+
+        .multiselect-field {
+
+        }
+
+        .multiselect-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            border: 1px solid gray;
+        }
+    </style>
+
+    <div class="multiselect">
+        <div class="multiselect-field"></div>
+        <div class="multiselect-popup">
+            <div class="multiselect-list">
+                <content></content>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    var ownerDocument = (document._currentScript || document.currentScript).ownerDocument;
+    var template = ownerDocument.querySelector('#multiselectTemplate');
+
+    (function() {
+        var multiselectPrototype = Object.create(HTMLElement.prototype);
+
+        multiselectPrototype.createdCallback = function() {
+            this._root = this.createRootElement();
+            this._field = this._root.querySelector('.multiselect-field');
+            this._popup = this._root.querySelector('.multiselect-popup');
+
+            this.refreshField();
+        };
+
+        multiselectPrototype.createRootElement = function() {
+            var result = this.createShadowRoot();
+            result.appendChild(document.importNode(template.content, true));
+            return result;
+        };
+
+        multiselectPrototype.refreshField = function() {
+            this._field.innerHTML = '';
+
+            var selectedOptions = this.querySelectorAll('option[selected]');
+
+            for(var i = 0; i < selectedOptions.length; i++) {
+                this._field.appendChild(this.createTag(selectedOptions[i]));
+            }
+        };
+
+        multiselectPrototype.createTag = function(option) {
+            var result = document.createElement('div');
+            result.className = 'multiselect-tag';
+            result.innerText = option.innerText;
+            return result;
+        };
+
+        document.registerElement('multi-select', {
+            prototype: multiselectPrototype
+        });
+
+    }());
+</script>
