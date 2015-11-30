@@ -14,14 +14,17 @@
             padding: 5px 10px;
             border: 1px solid gray;
         }
+
+        .multiselect-list-item {
+            padding: 5px 10px;
+        }
     </style>
 
     <div class="multiselect">
         <div class="multiselect-field"></div>
         <div class="multiselect-popup">
-            <div class="multiselect-list">
-                <content></content>
-            </div>
+            <ul class="multiselect-list">
+            </ul>
         </div>
     </div>
 </template>
@@ -37,8 +40,10 @@
             this._root = this.createRootElement();
             this._field = this._root.querySelector('.multiselect-field');
             this._popup = this._root.querySelector('.multiselect-popup');
+            this._list = this._root.querySelector('.multiselect-list');
 
             this.refreshField();
+            this.refreshList();
         };
 
         multiselectPrototype.createRootElement = function() {
@@ -60,6 +65,23 @@
         multiselectPrototype.createTag = function(option) {
             var result = document.createElement('div');
             result.className = 'multiselect-tag';
+            result.innerText = option.innerText;
+            return result;
+        };
+
+        multiselectPrototype.refreshList = function() {
+            this._list.innerHTML = '';
+
+            var options = this.querySelectorAll('option');
+
+            for(var i = 0; i < options.length; i++) {
+                this._list.appendChild(this.createListItem(options[i]));
+            }
+        };
+
+        multiselectPrototype.createListItem = function(option) {
+            var result = document.createElement('li');
+            result.className = 'multiselect-list-item';
             result.innerText = option.innerText;
             return result;
         };
