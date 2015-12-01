@@ -78,21 +78,41 @@
         };
 
         multiselectPrototype.render = function() {
-            this.attachFieldClickHandler();
+            this.attachHandlers();
+            this.refresh();
+        };
+
+        multiselectPrototype.refresh = function() {
             this.refreshField();
             this.refreshList();
         };
 
-        multiselectPrototype.attachFieldClickHandler = function() {
+        multiselectPrototype.attachHandlers = function() {
             this._field.addEventListener('click', this.fieldClickHandler.bind(this));
+            this._list.addEventListener('click', this.listClickHandler.bind(this));
         };
 
         multiselectPrototype.fieldClickHandler = function() {
             this.togglePopup();
         };
 
-        multiselectPrototype.togglePopup = function() {
-            this._isOpened = !this._isOpened;
+        multiselectPrototype.listClickHandler = function(event) {
+            var target = event.target;
+            while(target && target.tagName !== 'LI') {
+                target = target.parentNode;
+            }
+
+            var itemIndex = [].slice.call(this._list.children).indexOf(target);
+            var clickedOption = this.querySelectorAll('option')[itemIndex];
+            clickedOption.setAttribute('selected', 'selected');
+
+            this.togglePopup(false);
+            this.refresh();
+        };
+
+        multiselectPrototype.togglePopup = function(show) {
+            show = (show !== undefined) ? show : !this._isOpened;
+            this._isOpened = show;
             this._popup.style.display = this._isOpened ? 'block' : 'none';
         };
 
