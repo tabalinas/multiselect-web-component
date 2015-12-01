@@ -21,6 +21,14 @@
         .multiselect-list-item {
             padding: 5px 10px;
         }
+
+        .multiselect-tag-remove-button {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin-left: 10px;
+            background: gray;
+        }
     </style>
 
     <div class="multiselect">
@@ -80,10 +88,25 @@
         };
 
         multiselectPrototype.createTag = function(option) {
-            var result = document.createElement('div');
-            result.className = 'multiselect-tag';
-            result.innerText = option.innerText;
-            return result;
+            var tag = document.createElement('div');
+            tag.className = 'multiselect-tag';
+
+            var content = document.createElement('div');
+            content.className = 'multiselect-tag-text';
+            content.innerText = option.innerText;
+
+            var removeButton = document.createElement('div');
+            removeButton.className = 'multiselect-tag-remove-button';
+            removeButton.addEventListener('click', this.removeTag.bind(this, tag, option));
+
+            tag.appendChild(content).appendChild(removeButton);
+
+            return tag;
+        };
+
+        multiselectPrototype.removeTag = function(tag, option) {
+            tag.remove();
+            option.removeAttribute('selected');
         };
 
         multiselectPrototype.refreshList = function() {
