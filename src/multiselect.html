@@ -120,10 +120,10 @@
         };
 
         multiselectPrototype.createListItem = function(option) {
-            var result = document.createElement('li');
-            result.className = 'multiselect-list-item';
-            result.innerText = option.innerText;
-            return result;
+            var li = document.createElement('li');
+            li.className = 'multiselect-list-item';
+            li.innerText = option.innerText;
+            return li;
         };
 
         document.registerElement('multi-select', {
