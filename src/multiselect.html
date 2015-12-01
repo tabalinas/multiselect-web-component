@@ -26,6 +26,10 @@
             padding: 5px 10px;
         }
 
+        .multiselect-list-item.is-selected {
+            background: skyblue;
+        }
+
         .multiselect-tag-remove-button {
             display: inline-block;
             width: 10px;
@@ -160,12 +164,8 @@
         };
 
         multiselectPrototype.removeTag = function(tag, option) {
-            tag.remove();
             option.removeAttribute('selected');
-
-            if(!this.selectedOptions().length) {
-                this.refreshField();
-            }
+            this.refresh();
         };
 
         multiselectPrototype.refreshList = function() {
@@ -180,7 +180,7 @@
 
         multiselectPrototype.createListItem = function(option) {
             var li = document.createElement('li');
-            li.className = 'multiselect-list-item';
+            li.className = 'multiselect-list-item' + (option.hasAttribute('selected') ? ' is-selected' : '');
             li.innerText = option.innerText;
             return li;
         };
