@@ -12,6 +12,10 @@
             user-select: none;
         }
 
+        .multiselect-field-placeholder {
+            color: gray;
+        }
+
         .multiselect-tag {
             display: inline-block;
             padding: 5px 10px;
@@ -53,10 +57,18 @@
         };
 
         multiselectPrototype.init = function() {
+            this.initOptions();
+
             this._root = this.createRootElement();
             this._field = this._root.querySelector('.multiselect-field');
             this._popup = this._root.querySelector('.multiselect-popup');
             this._list = this._root.querySelector('.multiselect-list');
+        };
+
+        multiselectPrototype.initOptions = function() {
+            this._options = {
+                placeholder: this.getAttribute("placeholder") || 'Select'
+            };
         };
 
         multiselectPrototype.createRootElement = function() {
@@ -87,11 +99,27 @@
         multiselectPrototype.refreshField = function() {
             this._field.innerHTML = '';
 
-            var selectedOptions = this.querySelectorAll('option[selected]');
+            var selectedOptions = this.selectedOptions();
+
+            if(!selectedOptions.length) {
+                this._field.appendChild(this.createPlaceholder());
+                return;
+            }
 
             for(var i = 0; i < selectedOptions.length; i++) {
                 this._field.appendChild(this.createTag(selectedOptions[i]));
             }
+        };
+
+        multiselectPrototype.selectedOptions = function() {
+            return this.querySelectorAll('option[selected]');
+        };
+
+        multiselectPrototype.createPlaceholder = function() {
+            var placeholder = document.createElement('div');
+            placeholder.className = 'multiselect-field-placeholder';
+            placeholder.innerText = this._options.placeholder;
+            return placeholder;
         };
 
         multiselectPrototype.createTag = function(option) {
@@ -114,6 +142,10 @@
         multiselectPrototype.removeTag = function(tag, option) {
             tag.remove();
             option.removeAttribute('selected');
+
+            if(!this.selectedOptions().length) {
+                this.refreshField();
+            }
         };
 
         multiselectPrototype.refreshList = function() {
