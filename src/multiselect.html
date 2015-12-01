@@ -48,20 +48,27 @@
         var multiselectPrototype = Object.create(HTMLElement.prototype);
 
         multiselectPrototype.createdCallback = function() {
+            this.init();
+            this.render();
+        };
+
+        multiselectPrototype.init = function() {
             this._root = this.createRootElement();
             this._field = this._root.querySelector('.multiselect-field');
             this._popup = this._root.querySelector('.multiselect-popup');
             this._list = this._root.querySelector('.multiselect-list');
-
-            this.attachFieldClickHandler();
-            this.refreshField();
-            this.refreshList();
         };
 
         multiselectPrototype.createRootElement = function() {
-            var result = this.createShadowRoot();
-            result.appendChild(document.importNode(template.content, true));
-            return result;
+            var root = this.createShadowRoot();
+            root.appendChild(document.importNode(template.content, true));
+            return root;
+        };
+
+        multiselectPrototype.render = function() {
+            this.attachFieldClickHandler();
+            this.refreshField();
+            this.refreshList();
         };
 
         multiselectPrototype.attachFieldClickHandler = function() {
@@ -125,6 +132,7 @@
             li.innerText = option.innerText;
             return li;
         };
+
 
         document.registerElement('multi-select', {
             prototype: multiselectPrototype
