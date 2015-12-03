@@ -159,8 +159,9 @@
             return tag;
         };
 
-        multiselectPrototype.removeTag = function(tag, option) {
+        multiselectPrototype.removeTag = function(tag, option, event) {
             option.removeAttribute('selected');
+            event.stopPropagation();
             this.refresh();
         };
 
