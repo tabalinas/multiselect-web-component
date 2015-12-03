@@ -181,6 +181,10 @@
             return li;
         };
 
+        multiselectPrototype.attributeChangedCallback = function(optionName, newValue) {
+            this._options[optionName] = newValue;
+            this.refresh();
+        };
 
         document.registerElement('multi-select', {
             prototype: multiselectPrototype
