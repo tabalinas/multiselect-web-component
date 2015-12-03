@@ -182,7 +182,7 @@
             return li;
         };
 
-        multiselectPrototype.attributeChangedCallback = function(optionName, newValue) {
+        multiselectPrototype.attributeChangedCallback = function(optionName, oldValue, newValue) {
             this._options[optionName] = newValue;
             this.refresh();
         };
