@@ -165,7 +165,8 @@
             removeButton.className = 'multiselect-tag-remove-button';
             removeButton.addEventListener('click', this.removeTag.bind(this, tag, option));
 
-            tag.appendChild(content).appendChild(removeButton);
+            tag.appendChild(content);
+            tag.appendChild(removeButton);
 
             return tag;
         };
