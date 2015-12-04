@@ -7,11 +7,17 @@
 </head>
 <body>
     <div id="container">
-        <multi-select>
+        <multi-select placeholder="Select Value">
             <option value="1" selected>Item 1</option>
             <option value="2">Item 2</option>
             <option value="3" selected>Item 3</option>
         </multi-select>
     </div>
+    <script>
+        var multiselect = document.querySelector('multi-select');
+        multiselect.addEventListener('change', function() {
+            console.log('Selected items:', this.selectedItems());
+        });
+    </script>
 </body>
 </html>

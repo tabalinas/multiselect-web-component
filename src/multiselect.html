@@ -110,8 +110,15 @@
             var clickedOption = this.querySelectorAll('option')[itemIndex];
             clickedOption.setAttribute('selected', 'selected');
 
+            this.fireChangeEvent();
+
             this.togglePopup(false);
             this.refresh();
+        };
+
+        multiselectPrototype.fireChangeEvent = function() {
+            var event = new CustomEvent("change");
+            this.dispatchEvent(event);
         };
 
         multiselectPrototype.togglePopup = function(show) {
@@ -166,6 +173,8 @@
         multiselectPrototype.removeTag = function(tag, option, event) {
             option.removeAttribute('selected');
             event.stopPropagation();
+
+            this.fireChangeEvent();
             this.refresh();
         };
 
@@ -197,7 +206,7 @@
 
             for(var i = 0; i < selectedOptions.length; i++) {
                 var selectedOption = selectedOptions[i];
-                
+
                 result.push(selectedOption.hasAttribute('value')
                     ? selectedOption.getAttribute('value')
                     : selectedOption.innerText);
