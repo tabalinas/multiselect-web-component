@@ -123,7 +123,7 @@
         multiselectPrototype.refreshField = function() {
             this._field.innerHTML = '';
 
-            var selectedOptions = this.querySelectorAll('option[selected]');
+            var selectedOptions = this.selectedOptions();
 
             if(!selectedOptions.length) {
                 this._field.appendChild(this.createPlaceholder());
@@ -133,6 +133,10 @@
             for(var i = 0; i < selectedOptions.length; i++) {
                 this._field.appendChild(this.createTag(selectedOptions[i]));
             }
+        };
+
+        multiselectPrototype.selectedOptions = function() {
+            return this.querySelectorAll('option[selected]');
         };
 
         multiselectPrototype.createPlaceholder = function() {
@@ -185,6 +189,21 @@
         multiselectPrototype.attributeChangedCallback = function(optionName, oldValue, newValue) {
             this._options[optionName] = newValue;
             this.refresh();
+        };
+
+        multiselectPrototype.selectedItems = function() {
+            var result = [];
+            var selectedOptions = this.selectedOptions();
+
+            for(var i = 0; i < selectedOptions.length; i++) {
+                var selectedOption = selectedOptions[i];
+                
+                result.push(selectedOption.hasAttribute('value')
+                    ? selectedOption.getAttribute('value')
+                    : selectedOption.innerText);
+            }
+
+            return result;
         };
 
         document.registerElement('multi-select', {
