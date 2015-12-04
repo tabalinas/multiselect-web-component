@@ -1,41 +1,100 @@
 <template id="multiselectTemplate">
     <style>
-        .multiselect-popup {
-            display: none;
-            min-height: 400px;
-            background: lightyellow;
+        .multiselect {
+            box-sizing: border-box;
+            display: inline-block;
+            width: 20em;
         }
 
         .multiselect-field {
+            overflow: hidden;
+            padding: .2em .2em 0 .2em;
+            border: 1px solid #adadad;
+            border-radius: .2em;
             cursor: pointer;
             -webkit-user-select: none;
             user-select: none;
         }
 
         .multiselect-field-placeholder {
-            color: gray;
+            padding: .25em .5em;
+            margin-bottom: .2em;
+            color: #888;
+            line-height: 1;
         }
 
         .multiselect-tag {
+            position: relative;
             display: inline-block;
-            padding: 5px 10px;
-            border: 1px solid gray;
+            padding: .25em 1.5em .25em .5em;
+            border: 1px solid #bdbdbd;
+            border-radius: .2em;
+            margin: 0 .2em .2em 0;
+            line-height: 1;
         }
 
-        .multiselect-list-item {
-            padding: 5px 10px;
+        .multiselect-tag:last-child {
+            margin-right: 0;
         }
 
-        .multiselect-list-item.is-selected {
-            background: skyblue;
+        .multiselect-tag:hover {
+            background: #efefef;
         }
 
         .multiselect-tag-remove-button {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            margin-left: 10px;
-            background: gray;
+            position: absolute;
+            top: .25em;
+            right: .25em;
+            width: 1em;
+            height: 1em;
+            opacity: 0.3;
+        }
+
+        .multiselect-tag-remove-button:hover {
+            opacity: 1;
+        }
+
+        .multiselect-tag-remove-button:before,
+        .multiselect-tag-remove-button:after {
+            content: ' ';
+            position: absolute;
+            left: .5em;
+            width: 2px;
+            height: 1em;
+            background-color: #333;
+        }
+
+        .multiselect-tag-remove-button:before {
+            transform: rotate(45deg);
+        }
+
+        .multiselect-tag-remove-button:after {
+            transform: rotate(-45deg);
+        }
+
+        .multiselect-popup {
+            display: none;
+            border: 1px solid #bdbdbd;
+            border-radius: .2em;
+        }
+
+        .multiselect-list {
+            padding: 0;
+            margin: 0;
+        }
+
+        .multiselect-list-item {
+            padding: .5em 1em;
+            list-style: none;
+            cursor: pointer;
+        }
+
+        .multiselect-list-item.is-selected {
+            background: #f9f9f9;
+        }
+
+        .multiselect-list-item:hover {
+            background: #efefef;
         }
     </style>
 
