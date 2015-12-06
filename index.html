@@ -3,10 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Multiselect-web-component by tabalinas</title>
+    <title>Multiselect Web Component</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/github-light.css">
+    <link rel="import" href="component/multiselect.html">
+    <script src="webcomponentsjs/webcomponents.js"></script>
     <meta name="viewport" content="width=device-width">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -34,14 +36,42 @@
     </header>
     <section>
         <h3>Demo</h3>
-        
+        <div id="container">
+            <x-multiselect placeholder="Select Value">
+                <li value="1">Russia</li>
+                <li value="2">Canada</li>
+                <li value="3" selected>China</li>
+                <li value="4" selected>United States</li>
+                <li value="5">Brazil</li>
+                <li value="6">Australia</li>
+                <li value="7" selected>India</li>
+                <li value="8" selected>Argentina</li>
+            </x-multiselect>
+        </div>
+        <script>
+            var multiselect = document.querySelector('x-multiselect');
+            multiselect.addEventListener('change', function() {
+                console.log('Selected items:', this.selectedItems());
+            });
+        </script>
+        <pre><code lang="html">
+            <x-multiselect placeholder="Select Value">
+                <li value="1">Russia</li>
+                <li value="2">Canada</li>
+                <li value="3" selected>China</li>
+                <li value="4" selected>United States</li>
+                <li value="5">Brazil</li>
+                <li value="6">Australia</li>
+                <li value="7" selected>India</li>
+                <li value="8" selected>Argentina</li>
+            </x-multiselect>
+        </code></pre>
+        <p class="small">Open browser console to see selected items on change.</p>
     </section>
     <footer>
         <p>This project is maintained by <a href="https://github.com/tabalinas">tabalinas</a></p>
-
         <p>
-            <small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a>
-            </small>
+            <small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small>
         </p>
     </footer>
 </div>

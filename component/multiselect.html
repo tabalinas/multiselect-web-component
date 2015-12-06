@@ -1,0 +1,277 @@
+<template id="multiselectTemplate">
+    <style>
+        .multiselect {
+            box-sizing: border-box;
+            display: inline-block;
+            width: 20em;
+        }
+
+        .multiselect-field {
+            overflow: hidden;
+            padding: .2em .2em 0 .2em;
+            border: 1px solid #adadad;
+            border-radius: .2em;
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .multiselect-field-placeholder {
+            padding: .25em .5em;
+            margin-bottom: .2em;
+            color: #888;
+            line-height: 1;
+        }
+
+        .multiselect-tag {
+            position: relative;
+            display: inline-block;
+            padding: .25em 1.5em .25em .5em;
+            border: 1px solid #bdbdbd;
+            border-radius: .2em;
+            margin: 0 .2em .2em 0;
+            line-height: 1;
+            vertical-align: middle;
+        }
+
+        .multiselect-tag:last-child {
+            margin-right: 0;
+        }
+
+        .multiselect-tag:hover {
+            background: #efefef;
+        }
+
+        .multiselect-tag-text {
+            min-height: 1em;
+        }
+
+        .multiselect-tag-remove-button {
+            position: absolute;
+            top: .25em;
+            right: .25em;
+            width: 1em;
+            height: 1em;
+            opacity: 0.3;
+        }
+
+        .multiselect-tag-remove-button:hover {
+            opacity: 1;
+        }
+
+        .multiselect-tag-remove-button:before,
+        .multiselect-tag-remove-button:after {
+            content: ' ';
+            position: absolute;
+            left: .5em;
+            width: 2px;
+            height: 1em;
+            background-color: #333;
+        }
+
+        .multiselect-tag-remove-button:before {
+            transform: rotate(45deg);
+        }
+
+        .multiselect-tag-remove-button:after {
+            transform: rotate(-45deg);
+        }
+
+        .multiselect-popup {
+            display: none;
+            border: 1px solid #bdbdbd;
+            border-radius: .2em;
+        }
+
+        .multiselect-list {
+            padding: 0;
+            margin: 0;
+        }
+
+        ::content li {
+            padding: .5em 1em;
+            min-height: 1em;
+            list-style: none;
+            cursor: pointer;
+        }
+
+        ::content li[selected] {
+            background: #f9f9f9;
+        }
+
+        ::content li:hover {
+            background: #efefef;
+        }
+    </style>
+
+    <div class="multiselect">
+        <div class="multiselect-field"></div>
+        <div class="multiselect-popup">
+            <ul class="multiselect-list">
+                <content select="li"></content>
+            </ul>
+        </div>
+    </div>
+</template>
+
+<script>
+    var ownerDocument = (document._currentScript || document.currentScript).ownerDocument;
+    var template = ownerDocument.querySelector('#multiselectTemplate');
+
+    (function() {
+        var multiselectPrototype = Object.create(HTMLElement.prototype);
+
+        multiselectPrototype.createdCallback = function() {
+            this.init();
+            this.render();
+        };
+
+        multiselectPrototype.init = function() {
+            this.initOptions();
+
+            this._root = this.createRootElement();
+            this._field = this._root.querySelector('.multiselect-field');
+            this._popup = this._root.querySelector('.multiselect-popup');
+            this._list = this._root.querySelector('.multiselect-list');
+        };
+
+        multiselectPrototype.initOptions = function() {
+            this._options = {
+                placeholder: this.getAttribute("placeholder") || 'Select'
+            };
+        };
+
+        multiselectPrototype.createRootElement = function() {
+            var root = this.createShadowRoot();
+            root.appendChild(document.importNode(template.content, true));
+            return root;
+        };
+
+        multiselectPrototype.render = function() {
+            this.attachHandlers();
+            this.refresh();
+        };
+
+        multiselectPrototype.refresh = function() {
+            this.refreshField();
+            this.refreshList();
+        };
+
+        multiselectPrototype.attachHandlers = function() {
+            this._field.addEventListener('click', this.fieldClickHandler.bind(this));
+            this._list.addEventListener('click', this.listClickHandler.bind(this));
+        };
+
+        multiselectPrototype.fieldClickHandler = function() {
+            this.togglePopup();
+        };
+
+        multiselectPrototype.listClickHandler = function(event) {
+            var item = event.target;
+            while(item && item.tagName !== 'LI') {
+                item = item.parentNode;
+            }
+
+            item.setAttribute('selected', 'selected');
+
+            this.fireChangeEvent();
+
+            this.togglePopup(false);
+            this.refresh();
+        };
+
+        multiselectPrototype.fireChangeEvent = function() {
+            var event = new CustomEvent("change");
+            this.dispatchEvent(event);
+        };
+
+        multiselectPrototype.togglePopup = function(show) {
+            show = (show !== undefined) ? show : !this._isOpened;
+            this._isOpened = show;
+            this._popup.style.display = this._isOpened ? 'block' : 'none';
+        };
+
+        multiselectPrototype.refreshField = function() {
+            this._field.innerHTML = '';
+
+            var selectedItems = this.querySelectorAll('li[selected]');
+
+            if(!selectedItems.length) {
+                this._field.appendChild(this.createPlaceholder());
+                return;
+            }
+
+            for(var i = 0; i < selectedItems.length; i++) {
+                this._field.appendChild(this.createTag(selectedItems[i]));
+            }
+        };
+
+        multiselectPrototype.createPlaceholder = function() {
+            var placeholder = document.createElement('div');
+            placeholder.className = 'multiselect-field-placeholder';
+            placeholder.textContent = this._options.placeholder;
+            return placeholder;
+        };
+
+        multiselectPrototype.createTag = function(item) {
+            var tag = document.createElement('div');
+            tag.className = 'multiselect-tag';
+
+            var content = document.createElement('div');
+            content.className = 'multiselect-tag-text';
+            content.textContent = item.textContent;
+
+            var removeButton = document.createElement('div');
+            removeButton.className = 'multiselect-tag-remove-button';
+            removeButton.addEventListener('click', this.removeTag.bind(this, tag, item));
+
+            tag.appendChild(content);
+            tag.appendChild(removeButton);
+
+            return tag;
+        };
+
+        multiselectPrototype.removeTag = function(tag, item, event) {
+            item.removeAttribute('selected');
+            event.stopPropagation();
+
+            this.fireChangeEvent();
+            this.refresh();
+        };
+
+        multiselectPrototype.refreshList = function() {
+            var test = document.querySelectorAll(":host")
+            var items = this.querySelectorAll('li');
+
+            for(var i = 0; i < items.length; i++) {
+                var item = items[i];
+                item.className = 'multiselect-list-item' + (item.hasAttribute('selected') ? ' is-selected' : '');
+            }
+        };
+
+        multiselectPrototype.attributeChangedCallback = function(optionName, oldValue, newValue) {
+            this._options[optionName] = newValue;
+            this.refresh();
+        };
+
+        multiselectPrototype.selectedItems = function() {
+            var result = [];
+            var selectedItems = this.querySelectorAll('li[selected]');
+
+            for(var i = 0; i < selectedItems.length; i++) {
+                var selectedItem = selectedItems[i];
+
+                result.push(selectedItem.hasAttribute('value')
+                    ? selectedItem.getAttribute('value')
+                    : selectedItem.textContent);
+            }
+
+            return result;
+        };
+
+        document.registerElement('x-multiselect', {
+            prototype: multiselectPrototype
+        });
+
+    }());
+</script>
