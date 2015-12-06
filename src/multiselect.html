@@ -209,7 +209,7 @@
         multiselectPrototype.createPlaceholder = function() {
             var placeholder = document.createElement('div');
             placeholder.className = 'multiselect-field-placeholder';
-            placeholder.innerText = this._options.placeholder;
+            placeholder.textContent = this._options.placeholder;
             return placeholder;
         };
 
@@ -219,7 +219,7 @@
 
             var content = document.createElement('div');
             content.className = 'multiselect-tag-text';
-            content.innerText = item.innerText;
+            content.textContent = item.textContent;
 
             var removeButton = document.createElement('div');
             removeButton.className = 'multiselect-tag-remove-button';
@@ -263,7 +263,7 @@
 
                 result.push(selectedItem.hasAttribute('value')
                     ? selectedItem.getAttribute('value')
-                    : selectedItem.innerText);
+                    : selectedItem.textContent);
             }
 
             return result;
