@@ -1,6 +1,7 @@
 <template id="multiselectTemplate">
     <style>
         .multiselect {
+            position: relative;
             box-sizing: border-box;
             display: inline-block;
             width: 20em;
@@ -78,7 +79,10 @@
         }
 
         .multiselect-popup {
+            position: absolute;
+            z-index: 1000;
             display: none;
+            width: 100%;
             border: 1px solid #bdbdbd;
             border-radius: .2em;
         }

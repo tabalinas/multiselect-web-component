@@ -48,25 +48,21 @@
                 <li value="8" selected>Argentina</li>
             </x-multiselect>
         </div>
-        <script>
-            var multiselect = document.querySelector('x-multiselect');
-            multiselect.addEventListener('change', function() {
-                console.log('Selected items:', this.selectedItems());
-            });
-        </script>
+
+        <h3>Source HTML</h3>
         <pre><code lang="html">
-            <x-multiselect placeholder="Select Value">
-                <li value="1">Russia</li>
-                <li value="2">Canada</li>
-                <li value="3" selected>China</li>
-                <li value="4" selected>United States</li>
-                <li value="5">Brazil</li>
-                <li value="6">Australia</li>
-                <li value="7" selected>India</li>
-                <li value="8" selected>Argentina</li>
-            </x-multiselect>
+            &lt;x-multiselect placeholder="Select Value"&gt;
+                &lt;li value="1"&gt;Russia&lt;/li&gt;
+                &lt;li value="2"&gt;Canada&lt;/li&gt;
+                &lt;li value="3" selected&gt;China&lt;/li&gt;
+                &lt;li value="4" selected&gt;United States&lt;/li&gt;
+                &lt;li value="5"&gt;Brazil&lt;/li&gt;
+                &lt;li value="6"&gt;Australia&lt;/li&gt;
+                &lt;li value="7" selected&gt;India&lt;/li&gt;
+                &lt;li value="8" selected&gt;Argentina&lt;/li&gt;
+            &lt;/x-multiselect&gt;
         </code></pre>
-        <p class="small">Open browser console to see selected items on change.</p>
+        <p class="small">* Open browser console to see selected items on every change event.</p>
     </section>
     <footer>
         <p>This project is maintained by <a href="https://github.com/tabalinas">tabalinas</a></p>
@@ -76,6 +72,11 @@
     </footer>
 </div>
 <script src="javascripts/scale.fix.js"></script>
-
+<script>
+    var multiselect = document.querySelector('x-multiselect');
+    multiselect.addEventListener('change', function() {
+        console.log('Selected items:', this.selectedItems());
+    });
+</script>
 </body>
 </html>
