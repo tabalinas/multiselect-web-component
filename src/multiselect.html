@@ -83,17 +83,17 @@
             margin: 0;
         }
 
-        .multiselect-list-item {
+        ::content li {
             padding: .5em 1em;
             list-style: none;
             cursor: pointer;
         }
 
-        .multiselect-list-item.is-selected {
+        ::content li[selected] {
             background: #f9f9f9;
         }
 
-        .multiselect-list-item:hover {
+        ::content li:hover {
             background: #efefef;
         }
     </style>
@@ -102,6 +102,7 @@
         <div class="multiselect-field"></div>
         <div class="multiselect-popup">
             <ul class="multiselect-list">
+                <content select="li"></content>
             </ul>
         </div>
     </div>
@@ -160,14 +161,12 @@
         };
 
         multiselectPrototype.listClickHandler = function(event) {
-            var target = event.target;
-            while(target && target.tagName !== 'LI') {
-                target = target.parentNode;
+            var item = event.target;
+            while(item && item.tagName !== 'LI') {
+                item = item.parentNode;
             }
 
-            var itemIndex = [].slice.call(this._list.children).indexOf(target);
-            var clickedOption = this.querySelectorAll('option')[itemIndex];
-            clickedOption.setAttribute('selected', 'selected');
+            item.setAttribute('selected', 'selected');
 
             this.fireChangeEvent();
 
@@ -189,20 +188,16 @@
         multiselectPrototype.refreshField = function() {
             this._field.innerHTML = '';
 
-            var selectedOptions = this.selectedOptions();
+            var selectedItems = this.querySelectorAll('li[selected]');
 
-            if(!selectedOptions.length) {
+            if(!selectedItems.length) {
                 this._field.appendChild(this.createPlaceholder());
                 return;
             }
 
-            for(var i = 0; i < selectedOptions.length; i++) {
-                this._field.appendChild(this.createTag(selectedOptions[i]));
+            for(var i = 0; i < selectedItems.length; i++) {
+                this._field.appendChild(this.createTag(selectedItems[i]));
             }
-        };
-
-        multiselectPrototype.selectedOptions = function() {
-            return this.querySelectorAll('option[selected]');
         };
 
         multiselectPrototype.createPlaceholder = function() {
@@ -212,17 +207,17 @@
             return placeholder;
         };
 
-        multiselectPrototype.createTag = function(option) {
+        multiselectPrototype.createTag = function(item) {
             var tag = document.createElement('div');
             tag.className = 'multiselect-tag';
 
             var content = document.createElement('div');
             content.className = 'multiselect-tag-text';
-            content.innerText = option.innerText;
+            content.innerText = item.innerText;
 
             var removeButton = document.createElement('div');
             removeButton.className = 'multiselect-tag-remove-button';
-            removeButton.addEventListener('click', this.removeTag.bind(this, tag, option));
+            removeButton.addEventListener('click', this.removeTag.bind(this, tag, item));
 
             tag.appendChild(content);
             tag.appendChild(removeButton);
@@ -230,8 +225,8 @@
             return tag;
         };
 
-        multiselectPrototype.removeTag = function(tag, option, event) {
-            option.removeAttribute('selected');
+        multiselectPrototype.removeTag = function(tag, item, event) {
+            item.removeAttribute('selected');
             event.stopPropagation();
 
             this.fireChangeEvent();
@@ -239,20 +234,13 @@
         };
 
         multiselectPrototype.refreshList = function() {
-            this._list.innerHTML = '';
+            var test = document.querySelectorAll(":host")
+            var items = this.querySelectorAll('li');
 
-            var options = this.querySelectorAll('option');
-
-            for(var i = 0; i < options.length; i++) {
-                this._list.appendChild(this.createListItem(options[i]));
+            for(var i = 0; i < items.length; i++) {
+                var item = items[i];
+                item.className = 'multiselect-list-item' + (item.hasAttribute('selected') ? ' is-selected' : '');
             }
-        };
-
-        multiselectPrototype.createListItem = function(option) {
-            var li = document.createElement('li');
-            li.className = 'multiselect-list-item' + (option.hasAttribute('selected') ? ' is-selected' : '');
-            li.innerText = option.innerText;
-            return li;
         };
 
         multiselectPrototype.attributeChangedCallback = function(optionName, oldValue, newValue) {
@@ -262,14 +250,14 @@
 
         multiselectPrototype.selectedItems = function() {
             var result = [];
-            var selectedOptions = this.selectedOptions();
+            var selectedItems = this.querySelectorAll('li[selected]');
 
-            for(var i = 0; i < selectedOptions.length; i++) {
-                var selectedOption = selectedOptions[i];
+            for(var i = 0; i < selectedItems.length; i++) {
+                var selectedItem = selectedItems[i];
 
-                result.push(selectedOption.hasAttribute('value')
-                    ? selectedOption.getAttribute('value')
-                    : selectedOption.innerText);
+                result.push(selectedItem.hasAttribute('value')
+                    ? selectedItem.getAttribute('value')
+                    : selectedItem.innerText);
             }
 
             return result;
