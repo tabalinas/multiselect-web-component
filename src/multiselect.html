@@ -153,7 +153,7 @@
             var content = document.importNode(template.content, true);
 
             if (window.ShadowDOMPolyfill) {
-                WebComponents.ShadowCSS.shimStyling(content);
+                WebComponents.ShadowCSS.shimStyling(content, 'x-multiselect');
             }
 
             root.appendChild(content);
