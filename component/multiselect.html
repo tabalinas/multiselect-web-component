@@ -84,7 +84,7 @@
             display: none;
             overflow-y: auto;
             width: 100%;
-            max-height: 350px;
+            max-height: 300px;
             border: 1px solid #bdbdbd;
             border-radius: .2em;
             background: white;
@@ -150,7 +150,13 @@
 
         multiselectPrototype.createRootElement = function() {
             var root = this.createShadowRoot();
-            root.appendChild(document.importNode(template.content, true));
+            var content = document.importNode(template.content, true);
+
+            if (window.ShadowDOMPolyfill) {
+                WebComponents.ShadowCSS.shimStyling(content);
+            }
+
+            root.appendChild(content);
             return root;
         };
 
@@ -247,7 +253,6 @@
         };
 
         multiselectPrototype.refreshList = function() {
-            var test = document.querySelectorAll(":host")
             var items = this.querySelectorAll('li');
 
             for(var i = 0; i < items.length; i++) {
@@ -269,8 +274,8 @@
                 var selectedItem = selectedItems[i];
 
                 result.push(selectedItem.hasAttribute('value')
-                    ? selectedItem.getAttribute('value')
-                    : selectedItem.textContent);
+                        ? selectedItem.getAttribute('value')
+                        : selectedItem.textContent);
             }
 
             return result;
