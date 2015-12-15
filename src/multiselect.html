@@ -150,7 +150,13 @@
 
         multiselectPrototype.createRootElement = function() {
             var root = this.createShadowRoot();
-            root.appendChild(document.importNode(template.content, true));
+            var content = document.importNode(template.content, true);
+
+            if (window.ShadowDOMPolyfill) {
+                WebComponents.ShadowCSS.shimStyling(content);
+            }
+
+            root.appendChild(content);
             return root;
         };
 
