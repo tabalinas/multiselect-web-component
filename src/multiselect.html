@@ -162,12 +162,7 @@
 
         multiselectPrototype.render = function() {
             this.attachHandlers();
-            this.refresh();
-        };
-
-        multiselectPrototype.refresh = function() {
             this.refreshField();
-            this.refreshList();
         };
 
         multiselectPrototype.attachHandlers = function() {
@@ -190,7 +185,7 @@
             this.fireChangeEvent();
 
             this.togglePopup(false);
-            this.refresh();
+            this.refreshField();
         };
 
         multiselectPrototype.fireChangeEvent = function() {
@@ -249,21 +244,12 @@
             event.stopPropagation();
 
             this.fireChangeEvent();
-            this.refresh();
-        };
-
-        multiselectPrototype.refreshList = function() {
-            var items = this.querySelectorAll('li');
-
-            for(var i = 0; i < items.length; i++) {
-                var item = items[i];
-                item.className = 'multiselect-list-item' + (item.hasAttribute('selected') ? ' is-selected' : '');
-            }
+            this.refreshField();
         };
 
         multiselectPrototype.attributeChangedCallback = function(optionName, oldValue, newValue) {
             this._options[optionName] = newValue;
-            this.refresh();
+            this.refreshField();
         };
 
         multiselectPrototype.selectedItems = function() {
