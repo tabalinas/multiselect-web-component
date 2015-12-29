@@ -180,12 +180,13 @@
                 item = item.parentNode;
             }
 
-            item.setAttribute('selected', 'selected');
-
-            this.fireChangeEvent();
+            if(!item.hasAttribute('selected')) {
+                item.setAttribute('selected', 'selected');
+                this.fireChangeEvent();
+                this.refreshField();
+            }
 
             this.togglePopup(false);
-            this.refreshField();
         };
 
         multiselectPrototype.fireChangeEvent = function() {
