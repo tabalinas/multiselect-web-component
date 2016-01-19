@@ -12,7 +12,7 @@ A multiselect widget created using [Web Components](https://www.w3.org/TR/compon
 
 ## Usage
 
-Import multiselect.html and use `<x-multiselect>` element. Define items with `<li>` elements. To make an item selected add `selected` attribute.
+Import `multiselect.html` and use `<x-multiselect>` element. Define items with `<li>` elements. To make an item selected add `selected` attribute.
 
 ```html
 <!DOCTYPE html>
