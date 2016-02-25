@@ -187,6 +187,9 @@
                 case 13:
                     this.handleEnterKey();
                     break;
+                case 27:
+                    this.handleEscapeKey();
+                    break;
                 case 38:
                     event.altKey ? this.handleAltArrowUpKey() : this.handleArrowUpKey();
                     break;
@@ -250,6 +253,10 @@
             if(selectedItemElements.length) {
                 this.unselectItem(selectedItemElements[selectedItemElements.length - 1]);
             }
+        };
+
+        multiselectPrototype.handleEscapeKey = function() {
+            this.close();
         };
 
         multiselectPrototype.listClickHandler = function(event) {
