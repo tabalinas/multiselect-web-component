@@ -115,10 +115,10 @@
         }
     </style>
 
-    <div class="multiselect">
+    <div class="multiselect" role="combobox">
         <div class="multiselect-field"></div>
         <div class="multiselect-popup">
-            <ul class="multiselect-list">
+            <ul class="multiselect-list" role="listbox" aria-multiselectable="true">
                 <content select="li"></content>
             </ul>
         </div>
@@ -141,6 +141,7 @@
             this.initOptions();
 
             this._root = this.createRootElement();
+            this._control = this._root.querySelector('.multiselect');
             this._field = this._root.querySelector('.multiselect-field');
             this._popup = this._root.querySelector('.multiselect-popup');
             this._list = this._root.querySelector('.multiselect-list');
@@ -286,7 +287,8 @@
         multiselectPrototype.togglePopup = function(show) {
             show = (show !== undefined) ? show : !this._isOpened;
             this._isOpened = show;
-            this._popup.style.display = this._isOpened ? 'block' : 'none';
+            this._popup.style.display = show ? 'block' : 'none';
+            this._control.setAttribute("aria-expanded", show);
         };
 
         multiselectPrototype.refreshField = function() {
