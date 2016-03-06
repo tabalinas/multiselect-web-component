@@ -106,15 +106,19 @@
             background: #f9f9f9;
         }
 
+        ::content li[focused] {
+            background: #efefef;
+        }
+
         ::content li:hover {
             background: #efefef;
         }
     </style>
 
-    <div class="multiselect">
+    <div class="multiselect" role="combobox">
         <div class="multiselect-field"></div>
         <div class="multiselect-popup">
-            <ul class="multiselect-list">
+            <ul class="multiselect-list" role="listbox" aria-multiselectable="true">
                 <content select="li"></content>
             </ul>
         </div>
@@ -137,6 +141,7 @@
             this.initOptions();
 
             this._root = this.createRootElement();
+            this._control = this._root.querySelector('.multiselect');
             this._field = this._root.querySelector('.multiselect-field');
             this._popup = this._root.querySelector('.multiselect-popup');
             this._list = this._root.querySelector('.multiselect-list');
@@ -163,15 +168,97 @@
         multiselectPrototype.render = function() {
             this.attachHandlers();
             this.refreshField();
+            this.refreshItemAriaAttributes();
         };
 
         multiselectPrototype.attachHandlers = function() {
             this._field.addEventListener('click', this.fieldClickHandler.bind(this));
+            this._field.addEventListener('keydown', this.fieldKeyDownHandler.bind(this));
             this._list.addEventListener('click', this.listClickHandler.bind(this));
         };
 
         multiselectPrototype.fieldClickHandler = function() {
             this.togglePopup();
+        };
+
+        multiselectPrototype.fieldKeyDownHandler = function(event) {
+            switch(event.which) {
+                case 8:
+                    this.handleBackspaceKey();
+                    break;
+                case 13:
+                    this.handleEnterKey();
+                    break;
+                case 27:
+                    this.handleEscapeKey();
+                    break;
+                case 38:
+                    event.altKey ? this.handleAltArrowUpKey() : this.handleArrowUpKey();
+                    break;
+                case 40:
+                    event.altKey ? this.handleAltArrowDownKey() : this.handleArrowDownKey();
+                    break;
+                default:
+                    return;
+            }
+            event.preventDefault();
+        };
+
+        multiselectPrototype.handleEnterKey = function() {
+            if(this._isOpened && this._focusedItemIndex >= 0) {
+                var focusedItem = this.itemElements()[this._focusedItemIndex];
+                this.selectItem(focusedItem);
+            }
+        };
+
+        multiselectPrototype.handleArrowDownKey = function() {
+            var newFocusedItemIndex = (this._focusedItemIndex < this.itemElements().length - 1)
+                    ? this._focusedItemIndex + 1
+                    : 0;
+
+            this.refreshFocusedItem(newFocusedItemIndex);
+        };
+
+        multiselectPrototype.handleArrowUpKey = function() {
+            var newFocusedItemIndex = (this._focusedItemIndex > 0)
+                    ? this._focusedItemIndex - 1
+                    : this.itemElements().length - 1;
+
+            this.refreshFocusedItem(newFocusedItemIndex);
+        };
+
+        multiselectPrototype.handleAltArrowDownKey = function() {
+            this.open();
+        };
+
+        multiselectPrototype.handleAltArrowUpKey = function() {
+            this.close();
+        };
+
+        multiselectPrototype.refreshFocusedItem = function(newFocusedItemIndex) {
+            var itemElements = this.itemElements();
+
+            if(this._focusedItemIndex >= 0) {
+                var oldFocusedItem = itemElements[this._focusedItemIndex];
+                oldFocusedItem.removeAttribute('focused');
+            }
+
+            var newFocusedItem = itemElements[newFocusedItemIndex];
+            newFocusedItem.setAttribute('focused', 'focused');
+
+            this._focusedItemIndex = newFocusedItemIndex;
+        };
+
+        multiselectPrototype.handleBackspaceKey = function() {
+            var selectedItemElements = this.querySelectorAll("li[selected]");
+
+            if(selectedItemElements.length) {
+                this.unselectItem(selectedItemElements[selectedItemElements.length - 1]);
+            }
+        };
+
+        multiselectPrototype.handleEscapeKey = function() {
+            this.close();
         };
 
         multiselectPrototype.listClickHandler = function(event) {
@@ -180,13 +267,18 @@
                 item = item.parentNode;
             }
 
+            this.selectItem(item);
+        };
+
+        multiselectPrototype.selectItem = function(item) {
             if(!item.hasAttribute('selected')) {
                 item.setAttribute('selected', 'selected');
+                item.setAttribute('aria-selected', true);
                 this.fireChangeEvent();
                 this.refreshField();
             }
 
-            this.togglePopup(false);
+            this.close();
         };
 
         multiselectPrototype.fireChangeEvent = function() {
@@ -197,11 +289,14 @@
         multiselectPrototype.togglePopup = function(show) {
             show = (show !== undefined) ? show : !this._isOpened;
             this._isOpened = show;
-            this._popup.style.display = this._isOpened ? 'block' : 'none';
+            this._popup.style.display = show ? 'block' : 'none';
+            this._control.setAttribute("aria-expanded", show);
         };
 
         multiselectPrototype.refreshField = function() {
             this._field.innerHTML = '';
+            this._field.tabIndex = 0;
+            this._field.setAttribute("aria-readonly", true);
 
             var selectedItems = this.querySelectorAll('li[selected]');
 
@@ -213,6 +308,20 @@
             for(var i = 0; i < selectedItems.length; i++) {
                 this._field.appendChild(this.createTag(selectedItems[i]));
             }
+        };
+
+        multiselectPrototype.refreshItemAriaAttributes = function() {
+            var itemElements = this.itemElements();
+
+            for(var i = 0; i < itemElements.length; i++) {
+                var itemElement = itemElements[i];
+                itemElement.setAttribute("role", "option");
+                itemElement.setAttribute("aria-selected", itemElement.hasAttribute("selected"));
+            }
+        };
+
+        multiselectPrototype.itemElements = function() {
+            return this.querySelectorAll('li');
         };
 
         multiselectPrototype.createPlaceholder = function() {
@@ -241,9 +350,13 @@
         };
 
         multiselectPrototype.removeTag = function(tag, item, event) {
-            item.removeAttribute('selected');
+            this.unselectItem(item);
             event.stopPropagation();
+        };
 
+        multiselectPrototype.unselectItem = function(item) {
+            item.removeAttribute('selected');
+            item.setAttribute('aria-selected', false);
             this.fireChangeEvent();
             this.refreshField();
         };
@@ -251,6 +364,14 @@
         multiselectPrototype.attributeChangedCallback = function(optionName, oldValue, newValue) {
             this._options[optionName] = newValue;
             this.refreshField();
+        };
+
+        multiselectPrototype.open = function() {
+            this.togglePopup(true);
+        };
+
+        multiselectPrototype.close = function() {
+            this.togglePopup(false);
         };
 
         multiselectPrototype.selectedItems = function() {
