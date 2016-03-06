@@ -168,6 +168,7 @@
         multiselectPrototype.render = function() {
             this.attachHandlers();
             this.refreshField();
+            this.refreshItemAriaAttributes();
         };
 
         multiselectPrototype.attachHandlers = function() {
@@ -272,6 +273,7 @@
         multiselectPrototype.selectItem = function(item) {
             if(!item.hasAttribute('selected')) {
                 item.setAttribute('selected', 'selected');
+                item.setAttribute('aria-selected', true);
                 this.fireChangeEvent();
                 this.refreshField();
             }
@@ -294,6 +296,7 @@
         multiselectPrototype.refreshField = function() {
             this._field.innerHTML = '';
             this._field.tabIndex = 0;
+            this._field.setAttribute("aria-readonly", true);
 
             var selectedItems = this.querySelectorAll('li[selected]');
 
@@ -304,6 +307,16 @@
 
             for(var i = 0; i < selectedItems.length; i++) {
                 this._field.appendChild(this.createTag(selectedItems[i]));
+            }
+        };
+
+        multiselectPrototype.refreshItemAriaAttributes = function() {
+            var itemElements = this.itemElements();
+
+            for(var i = 0; i < itemElements.length; i++) {
+                var itemElement = itemElements[i];
+                itemElement.setAttribute("role", "option");
+                itemElement.setAttribute("aria-selected", itemElement.hasAttribute("selected"));
             }
         };
 
@@ -343,6 +356,7 @@
 
         multiselectPrototype.unselectItem = function(item) {
             item.removeAttribute('selected');
+            item.setAttribute('aria-selected', false);
             this.fireChangeEvent();
             this.refreshField();
         };
