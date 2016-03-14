@@ -116,7 +116,7 @@
     </style>
 
     <div class="multiselect" role="combobox">
-        <div class="multiselect-field"></div>
+        <div class="multiselect-field" aria-readonly="true"></div>
         <div class="multiselect-popup">
             <ul class="multiselect-list" role="listbox" aria-multiselectable="true">
                 <content select="li"></content>
@@ -296,7 +296,6 @@
         multiselectPrototype.refreshField = function() {
             this._field.innerHTML = '';
             this._field.tabIndex = 0;
-            this._field.setAttribute("aria-readonly", true);
 
             var selectedItems = this.querySelectorAll('li[selected]');
 
