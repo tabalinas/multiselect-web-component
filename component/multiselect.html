@@ -106,7 +106,8 @@
             background: #f9f9f9;
         }
 
-        ::content li[focused] {
+        ::content li:focus {
+            outline: dotted 1px #333;
             background: #efefef;
         }
 
@@ -116,7 +117,7 @@
     </style>
 
     <div class="multiselect" role="combobox">
-        <div class="multiselect-field"></div>
+        <div class="multiselect-field" aria-readonly="true"></div>
         <div class="multiselect-popup">
             <ul class="multiselect-list" role="listbox" aria-multiselectable="true">
                 <content select="li"></content>
@@ -168,20 +169,20 @@
         multiselectPrototype.render = function() {
             this.attachHandlers();
             this.refreshField();
-            this.refreshItemAriaAttributes();
+            this.refreshItems();
         };
 
         multiselectPrototype.attachHandlers = function() {
             this._field.addEventListener('click', this.fieldClickHandler.bind(this));
-            this._field.addEventListener('keydown', this.fieldKeyDownHandler.bind(this));
+            this._control.addEventListener('keydown', this.keyDownHandler.bind(this));
             this._list.addEventListener('click', this.listClickHandler.bind(this));
         };
 
         multiselectPrototype.fieldClickHandler = function() {
-            this.togglePopup();
+            this._isOpened ? this.close() : this.open();
         };
 
-        multiselectPrototype.fieldKeyDownHandler = function(event) {
+        multiselectPrototype.keyDownHandler = function(event) {
             switch(event.which) {
                 case 8:
                     this.handleBackspaceKey();
@@ -208,23 +209,24 @@
             if(this._isOpened && this._focusedItemIndex >= 0) {
                 var focusedItem = this.itemElements()[this._focusedItemIndex];
                 this.selectItem(focusedItem);
+                this._field.focus();
             }
         };
 
         multiselectPrototype.handleArrowDownKey = function() {
-            var newFocusedItemIndex = (this._focusedItemIndex < this.itemElements().length - 1)
+            this._focusedItemIndex = (this._focusedItemIndex < this.itemElements().length - 1)
                     ? this._focusedItemIndex + 1
                     : 0;
 
-            this.refreshFocusedItem(newFocusedItemIndex);
+            this.refreshFocusedItem();
         };
 
         multiselectPrototype.handleArrowUpKey = function() {
-            var newFocusedItemIndex = (this._focusedItemIndex > 0)
+            this._focusedItemIndex = (this._focusedItemIndex > 0)
                     ? this._focusedItemIndex - 1
                     : this.itemElements().length - 1;
 
-            this.refreshFocusedItem(newFocusedItemIndex);
+            this.refreshFocusedItem();
         };
 
         multiselectPrototype.handleAltArrowDownKey = function() {
@@ -235,18 +237,8 @@
             this.close();
         };
 
-        multiselectPrototype.refreshFocusedItem = function(newFocusedItemIndex) {
-            var itemElements = this.itemElements();
-
-            if(this._focusedItemIndex >= 0) {
-                var oldFocusedItem = itemElements[this._focusedItemIndex];
-                oldFocusedItem.removeAttribute('focused');
-            }
-
-            var newFocusedItem = itemElements[newFocusedItemIndex];
-            newFocusedItem.setAttribute('focused', 'focused');
-
-            this._focusedItemIndex = newFocusedItemIndex;
+        multiselectPrototype.refreshFocusedItem = function() {
+            this.itemElements()[this._focusedItemIndex].focus();
         };
 
         multiselectPrototype.handleBackspaceKey = function() {
@@ -287,7 +279,6 @@
         };
 
         multiselectPrototype.togglePopup = function(show) {
-            show = (show !== undefined) ? show : !this._isOpened;
             this._isOpened = show;
             this._popup.style.display = show ? 'block' : 'none';
             this._control.setAttribute("aria-expanded", show);
@@ -296,7 +287,6 @@
         multiselectPrototype.refreshField = function() {
             this._field.innerHTML = '';
             this._field.tabIndex = 0;
-            this._field.setAttribute("aria-readonly", true);
 
             var selectedItems = this.querySelectorAll('li[selected]');
 
@@ -310,14 +300,17 @@
             }
         };
 
-        multiselectPrototype.refreshItemAriaAttributes = function() {
+        multiselectPrototype.refreshItems = function() {
             var itemElements = this.itemElements();
 
             for(var i = 0; i < itemElements.length; i++) {
                 var itemElement = itemElements[i];
                 itemElement.setAttribute("role", "option");
                 itemElement.setAttribute("aria-selected", itemElement.hasAttribute("selected"));
+                itemElement.setAttribute("tabindex", -1);
             }
+
+            this._focusedItemIndex = 0;
         };
 
         multiselectPrototype.itemElements = function() {
@@ -368,10 +361,12 @@
 
         multiselectPrototype.open = function() {
             this.togglePopup(true);
+            this.refreshFocusedItem();
         };
 
         multiselectPrototype.close = function() {
             this.togglePopup(false);
+            this._field.focus();
         };
 
         multiselectPrototype.selectedItems = function() {
@@ -382,8 +377,8 @@
                 var selectedItem = selectedItems[i];
 
                 result.push(selectedItem.hasAttribute('value')
-                        ? selectedItem.getAttribute('value')
-                        : selectedItem.textContent);
+                    ? selectedItem.getAttribute('value')
+                    : selectedItem.textContent);
             }
 
             return result;
