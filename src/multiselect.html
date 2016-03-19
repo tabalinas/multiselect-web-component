@@ -206,10 +206,9 @@
         };
 
         multiselectPrototype.handleEnterKey = function() {
-            if(this._isOpened && this._focusedItemIndex >= 0) {
+            if(this._isOpened) {
                 var focusedItem = this.itemElements()[this._focusedItemIndex];
                 this.selectItem(focusedItem);
-                this._field.focus();
             }
         };
 
