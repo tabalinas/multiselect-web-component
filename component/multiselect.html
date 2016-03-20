@@ -103,21 +103,21 @@
         }
 
         ::content li[selected] {
-            background: #f9f9f9;
+            background: #f3f3f3;
         }
 
         ::content li:focus {
             outline: dotted 1px #333;
-            background: #efefef;
+            background: #e9e9e9;
         }
 
         ::content li:hover {
-            background: #efefef;
+            background: #e9e9e9;
         }
     </style>
 
     <div class="multiselect" role="combobox">
-        <div class="multiselect-field" aria-readonly="true"></div>
+        <div class="multiselect-field" tabindex="0"></div>
         <div class="multiselect-popup">
             <ul class="multiselect-list" role="listbox" aria-multiselectable="true">
                 <content select="li"></content>
@@ -206,10 +206,9 @@
         };
 
         multiselectPrototype.handleEnterKey = function() {
-            if(this._isOpened && this._focusedItemIndex >= 0) {
+            if(this._isOpened) {
                 var focusedItem = this.itemElements()[this._focusedItemIndex];
                 this.selectItem(focusedItem);
-                this._field.focus();
             }
         };
 
@@ -286,7 +285,6 @@
 
         multiselectPrototype.refreshField = function() {
             this._field.innerHTML = '';
-            this._field.tabIndex = 0;
 
             var selectedItems = this.querySelectorAll('li[selected]');
 
