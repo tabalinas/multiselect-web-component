@@ -1,5 +1,59 @@
+<!--
+    <x-multiselect>: allows selection of multiple items displayed in a dropdown in a user-friendly way
+
+    ### Usage
+    Options for the dropdown can be set in several ways:
+
+    1) As list items in the local DOM:
+
+        <x-multiselect id="queues" placeholder="Select Queue">
+            <li value="1">Queue One</li>
+            <li value="2">Queue Two</li>
+        </x-multiselect>
+
+    2) Databinding the `items` attribute:
+
+        <x-multiselect id="queues" placeholder="Select Queue" items="{{queueItems}}"></x-multiselect>
+
+        <script>
+        Polymer({
+            properties: {
+                queueItems: {
+                    type: Object,
+                    value: [ {value: 1, text: "Queue One"}, {value: 2, text: "Queue Two"}, {value: 3, text: "Queue Three"}]
+                }
+            }
+        });
+        </script>
+    
+    3) Calling the `addItems` method:
+
+        <x-multiselect id="queues" placeholder="Select Queue"><x-multiselect>
+        
+        var items = [{value: 1, text: "Queue One"}, {value: 2, text: "Queue Two"}, {value: 3, text: "Queue Three"}];
+        this.$.queues.addItems(items);
+-->
 <template id="multiselectTemplate">
-    <style>
+    <style>       
+        .caret {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            /*margin-left: 2px;*/
+            margin-left: 0;
+            vertical-align: middle;
+            border-top-color: #000 !important;
+            border-top: 4px dashed;
+            border-top: 4px solid \9;
+            border-right: 4px solid transparent;
+            border-left: 4px solid transparent;
+
+            /* Position to right of container */
+            position: absolute;
+            top: .75em;
+            right: .5em;
+        }
+
         .multiselect {
             position: relative;
             box-sizing: border-box;
@@ -121,7 +175,7 @@
         <div class="multiselect-field" tabindex="0"></div>
         <div class="multiselect-popup">
             <ul class="multiselect-list" role="listbox" aria-multiselectable="true">
-                <content select="li"></content>
+                <content class="content" select="li"></content>                
             </ul>
         </div>
     </div>
@@ -133,6 +187,19 @@
 
     (function() {
         var multiselectPrototype = Object.create(HTMLElement.prototype);
+
+        /* Items property accessor */
+        Object.defineProperty(multiselectPrototype, 'items', {
+            configurable: false,
+            enumerable: false,
+            get: function () {
+                return this.getAttribute('items');
+            },
+            set: function (newValue) {
+                this.setAttribute('items', newValue);
+                this.addItems(newValue);
+            }
+        });
 
         multiselectPrototype.createdCallback = function() {
             this.init();
@@ -153,7 +220,7 @@
             this._options = {
                 placeholder: this.getAttribute("placeholder") || 'Select'
             };
-        };
+        };        
 
         multiselectPrototype.createRootElement = function() {
             var root = this.createShadowRoot();
@@ -171,6 +238,41 @@
             this.attachHandlers();
             this.refreshField();
             this.refreshItems();
+        };
+
+        /**
+         * Handle component attribute changed event 
+         *
+         * @param attributeName {String} - the name of the element attribute that changed
+         * @param oldValue {String} - the previous value of the attribute
+         * @param oldValue {String} - thenew value of the attribute
+        */
+        multiselectPrototype.attributeChangedCallback = function (attributeName, oldValue, newValue) {      
+            switch (attributeName) {
+                case 'items':
+                    console.log("multi-select items changed: ", newValue);
+                    this.addItems(newValue);
+                break;            
+            }
+        };
+
+        /**
+         * Append list items to the dropdown 
+         *
+         * @param items {Array} - collection of list item value => text pairs:
+         * [{value: 1, text: "Item One"}] or [{text: "Item One"}] are acceptable.
+         */
+        multiselectPrototype.addItems = function(items) {  
+            var fragment = document.createDocumentFragment();          
+
+            items.forEach(function(item) {
+                var li = document.createElement('li');
+                li.textContent = item.text;
+                li.setAttribute("value", item.value || item.text); // Set value attribute if it exists
+                fragment.appendChild(li);
+            });
+
+            this.appendChild(fragment);
         };
 
         multiselectPrototype.attachHandlers = function() {
@@ -289,19 +391,26 @@
 
             var selectedItems = this.querySelectorAll('li[selected]');
 
+            // No items have been selected, show placeholder text
             if(!selectedItems.length) {
-                this._field.appendChild(this.createPlaceholder());
-                return;
-            }
+                var placeholder = this.createPlaceholder();
+                // Create and append caret to placeholder
+                var caret = this.createCaret();
+                placeholder.appendChild(caret);
+                this._field.appendChild(placeholder);
+            } else { // Display selected item tags
+                for(var i = 0; i < selectedItems.length; i++) {
+                    this._field.appendChild(this.createTag(selectedItems[i]));
+                }
 
-            for(var i = 0; i < selectedItems.length; i++) {
-                this._field.appendChild(this.createTag(selectedItems[i]));
+                // Append caret
+                this._field.appendChild(this.createCaret());
             }
-        };
+        };        
 
         multiselectPrototype.refreshItems = function() {
             var itemElements = this.itemElements();
-
+            
             for(var i = 0; i < itemElements.length; i++) {
                 var itemElement = itemElements[i];
                 itemElement.setAttribute("role", "option");
@@ -321,6 +430,16 @@
             placeholder.className = 'multiselect-field-placeholder';
             placeholder.textContent = this._options.placeholder;
             return placeholder;
+        };
+
+        /**
+         * Create caret icon to indicate this is a dropdown select menu
+         * 
+         */
+        multiselectPrototype.createCaret = function() {
+            var caret = document.createElement('span');
+            caret.className = 'caret';            
+            return caret;
         };
 
         multiselectPrototype.createTag = function(item) {
@@ -375,9 +494,13 @@
             for(var i = 0; i < selectedItems.length; i++) {
                 var selectedItem = selectedItems[i];
 
-                result.push(selectedItem.hasAttribute('value')
+                var item = { value: "", text: ""};
+                item.value = selectedItem.hasAttribute('value')
                     ? selectedItem.getAttribute('value')
-                    : selectedItem.textContent);
+                    : selectedItem.textContent;
+                
+                item.text = selectedItem.textContent;
+                result.push(item);
             }
 
             return result;
