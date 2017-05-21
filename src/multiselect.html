@@ -187,6 +187,7 @@
 
     (function() {
         var multiselectPrototype = Object.create(HTMLElement.prototype);
+        console.log("Hello");
 
         /* Items property accessor */
         Object.defineProperty(multiselectPrototype, 'items', {
@@ -214,6 +215,19 @@
             this._field = this._root.querySelector('.multiselect-field');
             this._popup = this._root.querySelector('.multiselect-popup');
             this._list = this._root.querySelector('.multiselect-list');
+
+            var _this = this;
+            var observer = new MutationObserver(function(mutations) {
+                _this._root = _this.createRootElement();
+                _this._control = _this._root.querySelector('.multiselect');
+                _this._field = _this._root.querySelector('.multiselect-field');
+                _this._popup = _this._root.querySelector('.multiselect-popup');
+                _this._list = _this._root.querySelector('.multiselect-list');
+
+                _this.render();
+
+            });
+            observer.observe(this, { childList: true });
         };
 
         multiselectPrototype.initOptions = function() {
