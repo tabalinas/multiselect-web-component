@@ -1,0 +1,17 @@
+{
+  "name": "multiselect-web-component",
+  "description": "Multiselect Web Component",
+  "main": "",
+  "authors": [
+    "Artem Tabalin <tabalinas@gmail.com> (http://tabalin.net/)"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "webcomponents",
+    "multiselect"
+  ],
+  "homepage": "https://github.com/tabalinas/multiselect-web-component",
+  "dependencies": {
+    "webcomponentsjs": "^1.0.7"
+  }
+}
